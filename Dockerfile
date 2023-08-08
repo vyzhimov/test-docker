@@ -5,7 +5,7 @@ FROM node:${NODE_VER}-buster
 ARG WORKDIR_PATH
 ARG USER_ID
 
-USER root
+USER ${USER_ID}
 RUN apt-get -y update \
     &&  apt-get install --no-install-recommends -yqq \
     cron \
