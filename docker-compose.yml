@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    container_name: "db"
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  node:
+    container_name: "api"
+    build:
+      context: "./"
+      args:
+        CONTAINER_APP_PATH: ${CONTAINER_PATH}
+        CONTAINER_WORKDIR: ${WORKDIR_PATH}
+        USER_ID: ${USER_ID}
+        NODE_VER: ${NODE_VER}
+        WORKDIR_PATH: ${WORKDIR_PATH}
+        database: postgres
+    image: "api"
+    entrypoint: ["/entrypoint.sh"]
+    depends_on:
+      - db
+    ports:
+      - ${PORT}:3000
+    links: 
+    - db
+    volumes:
+      - ${LOCAL_PATH}:/var/www
+      - ./entrypoint.sh:/entrypoint.sh
+volumes:
+  db:
+    driver: local
